@@ -27,6 +27,14 @@ using namespace json;
     yylval = lval;
 %}
 
-<<EOF>>       return token::END;
+"{" return '{';
+"}" return '}';
+"," return ',';
+[[:space:]]{+}[\t]{+}[\r] return token::WHITESPACE;
+("-")?[1-9]([0-9])* return token::ENTIER;
+("-")?([0-9])+\.([0-9])+ return token::FLOTTANT;
+[Ee] return token::EXP;
+
+<<EOF>> return token::END;
 
 %%

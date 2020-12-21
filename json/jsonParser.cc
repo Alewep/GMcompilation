@@ -3,7 +3,7 @@
 
 #include "scanner.hh"
 
-common::truc* parseJSON(const std::string &filename) {
+common::Document* parseJSON(const std::string &filename) {
     auto input = std::ifstream(filename);
     common::driver driver;
     json::scanner scanner(input, std::cout);

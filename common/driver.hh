@@ -6,11 +6,9 @@ namespace common {
 
     class driver {
     private:
-        truc* racine;
+        Document* racine;
     public:
-
         driver();
-
-        truc* get_racine();
+        Document* get_racine();
     };
 }

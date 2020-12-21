@@ -2,5 +2,5 @@
 
 #include "common.hh"
 
-common::truc* parseTOML(const std::string & filename);
+common::Document* parseTOML(const std::string & filename);
 

@@ -1,9 +1,10 @@
 #include <fstream>
+
 #include "tomlParser.hh"
 
 #include "scanner.hh"
 
-common::truc* parseTOML(const std::string &filename) {
+common::Document* parseTOML(const std::string &filename) {
     auto input = std::ifstream(filename);
     common::driver driver;
     toml::scanner scanner(input, std::cout);

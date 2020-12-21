@@ -30,7 +30,9 @@
     #define yylex scanner.yylex
 }
 
-%token                  END
+%token                  END WHITESPACE ENTIER FLOTTANT EXP
+
+
 
 %%
 
