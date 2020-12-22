@@ -1,15 +1,15 @@
 #pragma once
 #include <map>
+#include <list>
+#include <string>
 #include <memory>
 
 namespace common {
 
     class Valeur {
-    private:
-        virtual bool comparerSansVerif(Valeur const& v) const = 0;
     public:
-        bool comparer(Valeur const& v) const;
-        virtual std::string type() const = 0;
+        virtual bool operator==(Valeur const& v) const = 0;
+
     };
 
     class Objet : public Valeur{
@@ -17,9 +17,15 @@ namespace common {
         std::map<std::string,std::unique_ptr<Valeur>> _valeurs;
         bool contientValeur(std::string key,Valeur const& Valeur)const;
     public:
-        bool comparer(Objet const& o)const;
+        bool operator==(Valeur const& v) const override;
         bool ajouterValeur(std::string key,std::unique_ptr<Valeur> const& v );
-        std::string type() const override;
+
+    };
+    class Tableau : public Valeur  {
+    private:
+        std::list<std::unique_ptr<Valeur>> _valeurs;
+    public:
+        bool operator==(Valeur const&v) const override;
     };
 
     class Document {
@@ -29,22 +35,22 @@ namespace common {
         Document () =default;
         Objet& getObjet();
         void setObjet(Objet const& o);
-        bool comparerdoc(Document d) const;
+        bool operator==(Document const& d) const;
     };
 
     class ChaineCaractere : public Valeur {
     private:
         std::string _chaine;
-        bool comparerSansVerif(const Valeur &v) const override;
     public:
         ChaineCaractere (std::string chaine);
-        std::string type() const override;
+
+        bool operator==(Valeur const& v) const override;
     };
 
     class Nombre : public Valeur {
     public:
-        bool comparerSansVerif(const Valeur &v) const override;
-        std::string type() const override = 0;
+        bool operator==(Valeur const& v) const override =0;
+
     };
 
     class NombreEntier : public Nombre {
@@ -53,7 +59,7 @@ namespace common {
     public :
         NombreEntier(long int nombre);
         long int nombre() const;
-        std::string type() const override;
+        bool operator==(Valeur const& v) const override;
 
     };
 
@@ -63,7 +69,8 @@ namespace common {
     public:
         NombreFlottant(long double nombre);
         long double nombre() const;
-        std::string type() const override;
+        bool operator==(Valeur const& v) const override;
+
     };
 
 
