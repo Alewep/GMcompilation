@@ -1,7 +1,7 @@
 #include "driver.hh"
 
-common::driver::driver() : racine(new Document) {}
+common::driver::driver() : racine(new Objet) {}
 
-common::Document *common::driver::get_racine() {
+common::Objet *common::driver::get_racine() {
     return racine;
 }
