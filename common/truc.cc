@@ -50,8 +50,9 @@ std::string Objet::tojson() const
 {
     std::string start = "{";
     for ( auto const &e : _valeurs) {
-        start = start + e.first + ":" + e.second->tojson();
+        start = start + e.first + ":" + e.second->tojson()+",";
     }
+    start.erase (start.end()-1);
     start = start + "}";
     return start;
 }
