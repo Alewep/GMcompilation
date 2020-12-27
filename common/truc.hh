@@ -9,34 +9,35 @@ namespace common {
     class Valeur {
     public:
         virtual bool operator==(Valeur const& v) const = 0;
-
+        virtual std::shared_ptr<Valeur> clone() const = 0;
+        virtual ~Valeur() {};
+        virtual std::string tojson() const =0 ;
     };
 
     class Objet : public Valeur{
     private:
-        std::map<std::string,std::unique_ptr<Valeur>> _valeurs;
+        std::map<std::string,std::shared_ptr<Valeur>> _valeurs;
         bool contientValeur(std::string key,Valeur const& Valeur)const;
     public:
+        Objet() = default;
+        Objet(Objet const& o);
         bool operator==(Valeur const& v) const override;
-        bool ajouterValeur(std::string key,std::unique_ptr<Valeur> const& v );
-
+        void ajouterValeur(std::string key,std::shared_ptr<Valeur> v);
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
     };
     class Tableau : public Valeur  {
     private:
-        std::list<std::unique_ptr<Valeur>> _valeurs;
+        std::list<std::shared_ptr<Valeur>> _valeurs;
     public:
+        Tableau() = default;
+        Tableau(Tableau const& t);
         bool operator==(Valeur const&v) const override;
+        void ajouterValeur(std::shared_ptr<Valeur>);
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
     };
 
-    class Document {
-    private:
-        std::unique_ptr<Objet> _objetmain;
-    public:
-        Document () =default;
-        Objet& getObjet();
-        void setObjet(Objet const& o);
-        bool operator==(Document const& d) const;
-    };
 
     class ChaineCaractere : public Valeur {
     private:
@@ -45,32 +46,57 @@ namespace common {
         ChaineCaractere (std::string chaine);
 
         bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
     };
 
     class Nombre : public Valeur {
     public:
         bool operator==(Valeur const& v) const override =0;
+        std::shared_ptr<Valeur> clone () const override =0;
+        std::string tojson() const override =0;
 
     };
 
     class NombreEntier : public Nombre {
     private:
-        long int _nombre;
+        long _nombre;
     public :
-        NombreEntier(long int nombre);
+        NombreEntier(long nombre);
         long int nombre() const;
         bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
 
     };
 
     class NombreFlottant : public Nombre {
     private:
-        long double _nombre;
+        double _nombre;
     public:
-        NombreFlottant(long double nombre);
+        NombreFlottant(double nombre);
         long double nombre() const;
         bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
 
+    };
+
+    class Boolleen : public Valeur {
+    private:
+        bool _b;
+    public:
+        Boolleen (bool b);
+        bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur>clone () const override;
+        std::string tojson() const override;
+    };
+
+    class Null : public Valeur {
+    public :
+        bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
     };
 
 

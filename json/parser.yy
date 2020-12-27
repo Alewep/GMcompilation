@@ -16,6 +16,7 @@
     }
 
     #include "common.hh"
+    using namespace common;
 }
 
 %parse-param { json::scanner &scanner }
@@ -30,16 +31,93 @@
     #define yylex scanner.yylex
 }
 
-%token                  END WHITESPACE ENTIER FLOTTANT EXP
+
+%token <std::string> STRING
+%token END
+%token <long> ENTIER
+%token <double> FLOTTANT
+%token <bool> BOOLLEEN
+%token  Null
 
 
+%type <std::shared_ptr<Valeur>>  valeur
+%type   <Objet>         objet contenueObjet
+%type <std::pair<std::string,std::shared_ptr<Valeur>>> elementObjet
+%type <Tableau> tableau contenueTableau
+%type <std::shared_ptr<Valeur>> elementTableau
 
 %%
 
 document:
-    END {
+    objet END  {
+         driver.setRacine(new Objet($1));
+         YYACCEPT;
+    }
+    | END {
+        driver.setRacine(nullptr);
         YYACCEPT;
     }
+valeur: objet {
+
+        $$ = std::make_unique<Objet>($1);
+    }
+    | tableau{
+        $$ = std::make_unique<Tableau>($1) ;
+    }
+    | ENTIER {
+
+        $$ = std::make_unique<NombreEntier>($1);
+    }
+    | FLOTTANT {
+        $$ = std::make_unique<NombreFlottant>($1);
+    }
+    | BOOLLEEN {
+        $$ = std::make_unique<Boolleen>($1);
+    }
+    | STRING {
+        $$ = std::make_unique<ChaineCaractere>($1) ;
+    }
+objet :
+    '{' contenueObjet '}'
+    {
+        $$ = $2;
+    } | '{' '}' {
+        $$ = Objet();
+    }
+
+contenueObjet:
+elementObjet ',' contenueObjet  {
+    $$ = Objet($3);
+    $$.ajouterValeur($1.first,$1.second);
+}
+| elementObjet {
+    $$ = Objet();
+    $$.ajouterValeur($1.first,$1.second);
+}
+elementObjet :
+    STRING ':' valeur {
+        $$ = std::pair<std::string,std::shared_ptr<Valeur>>($1,$3);
+    }
+
+tableau: '[' contenueTableau ']' {
+        $$ = $2;
+
+    }
+    | '[' ']' {
+        $$ = Tableau();
+    }
+contenueTableau:
+elementTableau ',' contenueTableau {
+    $$ = Tableau($3);
+    $$.ajouterValeur($1);
+}
+| elementTableau {
+    $$ = Tableau();
+    $$.ajouterValeur($1);
+}
+elementTableau : valeur {
+    $$ = $1;
+}
 
 %%
 

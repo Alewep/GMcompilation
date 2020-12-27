@@ -3,5 +3,5 @@
 #include <string>
 #include "common.hh"
 
-common::Document* parseJSON(const std::string & filename);
+common::Objet* parseJSON(const std::string & filename);
 

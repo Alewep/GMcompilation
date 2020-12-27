@@ -1,14 +1,14 @@
 #pragma once
-
 #include "truc.hh"
 
 namespace common {
 
     class driver {
     private:
-        Document* racine;
+        Objet* racine;
     public:
         driver();
-        Document* get_racine();
+        Objet* get_racine();
+        void setRacine(Objet *value);
     };
 }

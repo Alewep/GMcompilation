@@ -3,12 +3,12 @@
 #include "toml/tomlParser.hh"
 
 int main() {
-    std::cout<<"******** Json *******" << std::endl;
+    std::cout << "******** Json *******" << std::endl;
     auto json = parseJSON("test.json");
 
     std::cout << "******** Toml *******" << std::endl;
     auto toml = parseTOML("test.toml");
-
+    std::cout<<json->tojson();
 /*
     if (*json == *toml) {
         return 0;
