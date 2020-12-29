@@ -59,23 +59,26 @@ document:
     }
 valeur: objet {
 
-        $$ = std::make_unique<Objet>($1);
+        $$ = std::make_shared<Objet>($1);
     }
     | tableau{
-        $$ = std::make_unique<Tableau>($1) ;
+        $$ = std::make_shared<Tableau>($1) ;
     }
     | ENTIER {
 
-        $$ = std::make_unique<NombreEntier>($1);
+        $$ = std::make_shared<NombreEntier>($1);
     }
     | FLOTTANT {
-        $$ = std::make_unique<NombreFlottant>($1);
+        $$ = std::make_shared<NombreFlottant>($1);
     }
     | BOOLLEEN {
-        $$ = std::make_unique<Boolleen>($1);
+        $$ = std::make_shared<Boolleen>($1);
     }
     | STRING {
-        $$ = std::make_unique<ChaineCaractere>($1) ;
+        $$ = std::make_shared<ChaineCaractere>($1) ;
+    }
+    | Null {
+        $$ = std::make_shared<Null>();
     }
 objet :
     '{' contenueObjet '}'

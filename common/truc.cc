@@ -48,11 +48,16 @@ std::shared_ptr<Valeur> Objet::clone() const
 
 std::string Objet::tojson() const
 {
+
     std::string start = "{";
-    for ( auto const &e : _valeurs) {
-        start = start + e.first + ":" + e.second->tojson()+",";
+    for (auto e = _valeurs.begin(); e!=_valeurs.end();++e) {
+
+        start = start + e->first + ":" + e->second->tojson();
+        auto suiv = e;
+        ++suiv;
+        if ( suiv!=_valeurs.end()) start = start + ",";
     }
-    start.erase (start.end()-1);
+
     start = start + "}";
     return start;
 }
@@ -93,10 +98,14 @@ std::shared_ptr<Valeur> Tableau::clone() const
 std::string Tableau::tojson() const
 {
     std::string start = "[";
-    for ( auto const &e : _valeurs) {
-        start += e->tojson() + ",";
+    for (auto e = _valeurs.begin(); e!=_valeurs.end();++e) {
+
+        start = start + (*e)->tojson();
+        auto suiv = e;
+        ++suiv;
+        if ( suiv!=_valeurs.end()) start = start + ",";
     }
-    start.erase (start.end()-1);
+
     start = start + "]";
     return start;
 }

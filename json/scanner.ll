@@ -32,26 +32,30 @@ using namespace json;
   return token::END;
 
 }
+null return token::Null;
+
 \"(([^\x00-\x1F\x7F\"\\])|(\\\\|\\\"|\\\/|\\b|\\f|\\n|\\r|\\t|\\u[0-9A-F]{4,4}))*\" {
-      yylval->build<std::string>(yytext);
+      std::string s(yytext);
+      yylval->build<std::string>(s.substr(1,s.length()-2));
       return token::STRING;
-  }
-(\-)?([0-9])+\.([0-9])+([Ee]([\-\+])?[0-9]*)? {
+ }
+(((\-)?[1-9]([0-9])*)|(0)) {
+    yylval->build<long>(atol(yytext));
+    return token::ENTIER;
+}
+((\-)?(([1-9](_?[0-9](_[0-9])?)*)|0))(\.((([0-9]*[1-9])|0)([Ee][\+\-]?[0-9]+)?)|[Ee][\+\-]?[0-9]+) {
     yylval->build<double>(atof(yytext));
     return token::FLOTTANT;
 }
-(((\-)?[1-9]([0-9])*)|(0))([Ee]([\-\+])?[0-9]*)? {
-    yylval->build<long>(atol(yytext));
-    return token::ENTIER;
-}                                  
+
 "{" return '{';
 "}" return '}';
 "," return ',';
 ":" return ':';
 "[" return '[';
 "]" return ']';
-null return token::Null;
-((true)|(false)) {
+
+(true|false) {
     std::cout<<"test";
     if ( strcmp(yytext,"true")) yylval->build<bool>(true);
     else if (strcmp(yytext,"false") ) yylval->build<bool>(false);
@@ -59,6 +63,8 @@ null return token::Null;
 }
 
 ([\r\n\s\t])* {}
+
+
 . {}
 
 %%

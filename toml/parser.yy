@@ -16,6 +16,7 @@
     }
 
     #include "common.hh"
+    using namespace common;
 }
 
 %parse-param { toml::scanner &scanner }
@@ -30,14 +31,46 @@
     #define yylex scanner.yylex
 }
 
-%token                  END
+%token                  END ENDLINE
+%token <std::string>    BAREKEY STRING
+%token <long>           ENTIER
+%token <double>         FLOTTANT
+%token <bool>           BOOLEEN
+
+%type <Objet> document start tkey
+%type <std::shared_ptr<Valeur>> value
+
 
 %%
 
-document:
-    END {
+document:()
+    start { $1 = Objet()
+            driver->setRacine
+          }
+
+start :
+tkey '=' value ENDLINE start {
+
+    }
+    | '[' tkey ']' ENDLINE start
+    | '[' '[' tkey ']' ']' ENDLINE start
+    | END {
         YYACCEPT;
     }
+    ;
+tkey :
+    key '.' tkey | key
+
+tableau :
+    '[' contenutableau ']'
+    | '[' ']'
+    ;
+
+contenutableau : value ',' contenutableau | value
+
+value : STRING | ENTIER | FLOTTANT | BOOLEEN | tableau
+key : STRING | ENTIER | BAREKEY | BOOLEEN
+
 
 %%
 
