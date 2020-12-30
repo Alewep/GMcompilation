@@ -38,7 +38,7 @@ void Objet::ajouterValeur(std::string key,std::shared_ptr<Valeur> v)
     if(cherch == _valeurs.end()) {
         _valeurs[key] = v;
     }
-    else return throw "Erreur : ajout de clé multiple";
+    else return throw 0;
 }
 
 std::shared_ptr<Valeur> Objet::clone() const
@@ -122,7 +122,7 @@ bool ChaineCaractere::operator==(const Valeur &v) const
 
 std::shared_ptr<Valeur> ChaineCaractere::clone() const
 {
-    return std::make_shared<ChaineCaractere> (*this) ;
+    return std::make_shared<ChaineCaractere> (*this);
 }
 
 std::string ChaineCaractere::tojson() const
@@ -215,4 +215,39 @@ std::string Null::tojson() const
     return "null";
 }
 
+Infinity::Infinity(valueinfinity const  &v) : _spe(v) {}
 
+bool Infinity::operator==(const Valeur &v) const
+{
+    if(const Infinity *t = dynamic_cast<const Infinity*>(&v))
+        return _spe == t->_spe;
+    else return false;
+}
+
+std::shared_ptr<Valeur> Infinity::clone() const
+{
+    return std::make_shared<Infinity>(*this);
+}
+
+std::string Infinity::tojson() const
+{
+    throw 0;
+}
+
+
+
+bool Notanumber::operator==(const Valeur &v) const
+{
+    if (dynamic_cast<const Notanumber *>(&v)) return true;
+    else return false;
+}
+
+std::shared_ptr<Valeur> Notanumber::clone() const
+{
+    return std::make_shared<Notanumber>(*this);
+}
+
+std::string Notanumber::tojson() const
+{
+    throw 0;
+}

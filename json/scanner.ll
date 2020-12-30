@@ -21,6 +21,7 @@ using namespace json;
 %option noyywrap
 %option nodefault
 
+
 %%
 
 %{
@@ -28,7 +29,6 @@ using namespace json;
 %}
 
 <<EOF>> {
-  std::cout<<"fin"<<std::endl;
   return token::END;
 
 }
@@ -56,15 +56,13 @@ null return token::Null;
 "]" return ']';
 
 (true|false) {
-    std::cout<<"test";
     if ( strcmp(yytext,"true")) yylval->build<bool>(true);
     else if (strcmp(yytext,"false") ) yylval->build<bool>(false);
     return token::BOOLLEEN;
 }
+([\t\n\r ])+ { }
 
-([\r\n\s\t])* {}
 
-
-. {}
+. {  return yytext[0]; }
 
 %%

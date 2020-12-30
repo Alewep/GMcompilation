@@ -3,7 +3,6 @@
 #include <list>
 #include <string>
 #include <memory>
-
 namespace common {
 
     class Valeur {
@@ -99,6 +98,24 @@ namespace common {
         std::string tojson() const override;
     };
 
+    enum class valueinfinity  {pinf,minf};
 
+    class Infinity : public Nombre {
+    private :
+        valueinfinity _spe;
+    public :
+       //Infinity() = default;
+       Infinity(valueinfinity const& v);
+       bool operator==(Valeur const& v) const override;
+       std::shared_ptr<Valeur> clone () const override;
+       std::string tojson() const override;
+    };
+    class Notanumber : public Valeur {
+    public :
+        Notanumber() = default ;
+        bool operator==(Valeur const& v) const override;
+        std::shared_ptr<Valeur> clone () const override;
+        std::string tojson() const override;
+    };
 
 }

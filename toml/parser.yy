@@ -36,30 +36,60 @@
 %token <long>           ENTIER
 %token <double>         FLOTTANT
 %token <bool>           BOOLEEN
+%token <Notanumber>     NAN
+%token <valueinfinity>  INF SINF
 
-%type <Objet> document start tkey
-%type <std::shared_ptr<Valeur>> value
+%type <std::shared_ptr<Valeur>> value tkey
+
 
 
 %%
 
-document:()
-    start { $1 = Objet()
-            driver->setRacine
-          }
+document:
+    ENDLINE first | first
+    ;
+
+first :
+    tkey '=' value ENDLINE start {
+        //driver.setRacine(new Objet());
+
+    }
+    | '[' tkey ']' ENDLINE start {
+        //driver.setRacine(new Objet());
+    }
+    | '[' '[' tkey ']' ']' ENDLINE start {
+        //driver.setRacine(new Objet());
+    }
+    | END {
+        //driver.setRacine(new Objet());
+        YYACCEPT;
+    }
+
+
 
 start :
-tkey '=' value ENDLINE start {
+    tkey '=' value ENDLINE start {
 
     }
     | '[' tkey ']' ENDLINE start
-    | '[' '[' tkey ']' ']' ENDLINE start
+    | '[' '[' tkey ']' ']' ENDLINE start {
+
+    }
     | END {
         YYACCEPT;
     }
     ;
+
+
+
 tkey :
-    key '.' tkey | key
+    key '.' tkey {
+        //std::shared_ptr<Valeur> p = std::make_shared<Objet>();
+        //driver.getRacine()->ajouterValeur($1,p);
+    }
+    | key {
+        //$$ = std::sharedp
+    }
 
 tableau :
     '[' contenutableau ']'
@@ -68,8 +98,8 @@ tableau :
 
 contenutableau : value ',' contenutableau | value
 
-value : STRING | ENTIER | FLOTTANT | BOOLEEN | tableau
-key : STRING | ENTIER | BAREKEY | BOOLEEN
+value : STRING | ENTIER | FLOTTANT | BOOLEEN | tableau | INF  | SINF | NAN
+key : STRING | ENTIER | BAREKEY | BOOLEEN | NAN | INF
 
 
 %%

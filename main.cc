@@ -8,7 +8,6 @@ int main() {
 
     std::cout << "******** Toml *******" << std::endl;
     auto toml = parseTOML("test.toml");
-    std::cout<<json->tojson();
 /*
     if (*json == *toml) {
         return 0;

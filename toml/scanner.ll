@@ -14,6 +14,7 @@ using token = toml::parser::token;
 #define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
 using namespace toml;
+bool barekey = false;
 %}
 
 %option c++
@@ -29,15 +30,21 @@ using namespace toml;
     yylval = lval;
 %}
 
-
 <<EOF>>       return token::END;
+^#.*[\n\r] {}
+\#.*$ {}
+
+([\r\n])+ {
+    std::cout<<"endline"<<std::endl;
+    return token::ENDLINE;
+}
 
 \, return ',';
 \[ return '[';
 \] return ']';
 \= return '=';
 \. return '.';
-\n return token::ENDLINE;
+
 
 true {
  yylval->build<bool>(true);
@@ -47,33 +54,52 @@ false {
  yylval->build<bool>(false);
  return token::BOOLEEN;
 }
+\inf {
+     yylval->build<valueinfinity>(valueinfinity::pinf);
+     return token::INF;
+}
 
+\+inf {
+     yylval->build<valueinfinity>(valueinfinity::pinf);
+     return token::SINF;
+}
+\-inf {
+     yylval->build<valueinfinity>(valueinfinity::minf);
+     return token::SINF;
+}
+
+[\+\-]?(nan) {
+     yylval->build<Notanumber>();
+     return token::NAN;
+}
 
 ([\+\-]?(([1-9](_?[0-9](_[0-9])?)*)|0))(\.((([0-9]*[1-9])|0)([Ee][\+\-]?[0-9]+)?)|[Ee][\+\-]?[0-9]+) {
     yylval->build<double>(atof(yytext));
     return token::FLOTTANT;
  }
 ([\+\-]?(([1-9](_?[0-9](_[0-9])?)*)|0)) {
-     yylval->build<long>(atoi(yytext));
+     yylval->build<long>(atol(yytext));
      return token::ENTIER;
 }
+
 0x([0-9A-Fa-f](_?[0-9A-Fa-f])*) {
     std::string s(yytext);
-    yylval->build<long>(stoi(s.substr(2), 0, 16));
+    yylval->build<long>(stol(s.substr(2), 0, 16));
     return token::ENTIER;
 }
 0o([0-8](_?[0-8])*) {
      std::string s(yytext);
-     yylval->build<long>(stoi(s.substr(2), 0, 8));
+     yylval->build<long>(stol(s.substr(2), 0, 8));
      return token::ENTIER;
 }
 0b([01](_?[01])*) {
      std::string s(yytext);
-     yylval->build<long>(stoi(s.substr(2), 0, 2));
+     yylval->build<long>(stol(s.substr(2), 0, 2));
      return token::ENTIER;
 }
 
-([A-Za-z0-9_-]*) {
+([A-Za-z0-9_-]+) {
+     std::cout<<yytext;
      yylval->build<std::string>(yytext);
      return token::BAREKEY;
 }
@@ -84,7 +110,9 @@ false {
 }
 
 
-([\r\s\t\n])* {}
-. {}
-
+([\t ])+ {}
+.|\n {
+    std::cout<<yytext<<std::endl;
+    return yytext[0];
+}
 %%
