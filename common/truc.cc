@@ -41,6 +41,32 @@ void Objet::ajouterValeur(std::string key,std::shared_ptr<Valeur> v)
     else return throw 0;
 }
 
+void Objet::unionObj(const Objet &o)
+{
+    for (auto &e : o._valeurs) {
+        ajouterValeur(e.first,e.second->clone());
+    }
+}
+
+void Objet::ajouterdanstab(std::string key, std::shared_ptr<Valeur> v)
+{
+    auto cherch = _valeurs.find(key);
+    if ( cherch == _valeurs.end()   )
+    {
+        std::shared_ptr<Tableau> t = std::make_shared<Tableau>();
+        t->ajouterValeur(v);
+        _valeurs[key] = t;
+    }
+    else {
+        if ( auto t =  dynamic_cast<Tableau*>(_valeurs[key].get())) {
+            t->ajouterValeur(v);
+        }
+        else throw 0;
+    }
+
+
+}
+
 std::shared_ptr<Valeur> Objet::clone() const
 {
     return std::make_shared<Objet>(*this);
@@ -48,7 +74,6 @@ std::shared_ptr<Valeur> Objet::clone() const
 
 std::string Objet::tojson() const
 {
-
     std::string start = "{";
     for (auto e = _valeurs.begin(); e!=_valeurs.end();++e) {
 
@@ -179,21 +204,21 @@ std::string NombreFlottant::tojson() const
     return std::to_string(_nombre);
 }
 
-Boolleen::Boolleen(bool b) : _b(b) {}
+Booleen::Booleen(bool b) : _b(b) {}
 
-bool Boolleen::operator==(const Valeur &v) const
+bool Booleen::operator==(const Valeur &v) const
 {
-    if(const Boolleen *t = dynamic_cast<const Boolleen*>(&v))
+    if(const Booleen *t = dynamic_cast<const Booleen*>(&v))
         return _b == t->_b;
     else return false;
 }
 
-std::shared_ptr<Valeur> Boolleen::clone() const
+std::shared_ptr<Valeur> Booleen::clone() const
 {
-    return std::make_shared<Boolleen>(*this);
+    return std::make_shared<Booleen>(*this);
 }
 
-std::string Boolleen::tojson() const
+std::string Booleen::tojson() const
 {
     if (_b == true) return "true";
     else return "false";

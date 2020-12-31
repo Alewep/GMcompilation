@@ -72,7 +72,7 @@ valeur: objet {
         $$ = std::make_shared<NombreFlottant>($1);
     }
     | BOOLLEEN {
-        $$ = std::make_shared<Boolleen>($1);
+        $$ = std::make_shared<Booleen>($1);
     }
     | STRING {
         $$ = std::make_shared<ChaineCaractere>($1) ;

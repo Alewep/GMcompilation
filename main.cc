@@ -4,10 +4,12 @@
 
 int main() {
     std::cout << "******** Json *******" << std::endl;
-    auto json = parseJSON("test.json");
+    //auto json = parseJSON("test.jso");
 
     std::cout << "******** Toml *******" << std::endl;
     auto toml = parseTOML("test.toml");
+    std::cout<<toml->tojson();
+
 /*
     if (*json == *toml) {
         return 0;

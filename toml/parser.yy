@@ -15,8 +15,15 @@
         class scanner;
     }
 
+
     #include "common.hh"
     using namespace common;
+
+    struct arbrekey {
+        std::shared_ptr<Objet> racine;
+        std::shared_ptr<Objet> noeud;
+        std::string key;
+    };
 }
 
 %parse-param { toml::scanner &scanner }
@@ -36,70 +43,100 @@
 %token <long>           ENTIER
 %token <double>         FLOTTANT
 %token <bool>           BOOLEEN
-%token <Notanumber>     NAN
+%token <Notanumber>     NAN SNAN
 %token <valueinfinity>  INF SINF
 
-%type <std::shared_ptr<Valeur>> value tkey
-
+%type <std::shared_ptr<Valeur>> value
+%type <arbrekey>                tkey
+%type <std::shared_ptr<Objet>>  start
+%type <Tableau>                 tableau contenutableau
+%type <std::string>             key
 
 
 %%
 
 document:
-    ENDLINE first | first
-    ;
-
-first :
-    tkey '=' value ENDLINE start {
-        //driver.setRacine(new Objet());
-
-    }
-    | '[' tkey ']' ENDLINE start {
-        //driver.setRacine(new Objet());
-    }
-    | '[' '[' tkey ']' ']' ENDLINE start {
-        //driver.setRacine(new Objet());
-    }
-    | END {
-        //driver.setRacine(new Objet());
-        YYACCEPT;
-    }
-
+    ENDLINE start { driver.setRacine(new Objet(*($2.get()))); YYACCEPT; }
+    | start {driver.setRacine(new Objet(*($1.get()))); YYACCEPT;}
 
 
 start :
     tkey '=' value ENDLINE start {
 
+        $$ = $1.racine;
+        $1.racine->tojson();
+        $1.noeud->ajouterValeur($1.key,$3);
+        $$->unionObj(*($5.get()));
     }
-    | '[' tkey ']' ENDLINE start
+    | '[' tkey ']' ENDLINE start {
+        $$ = $2.racine;
+        std::shared_ptr<Objet> o = std::make_shared<Objet>();
+        $2.noeud->ajouterValeur($2.key,o);
+        o->unionObj(*($5.get()));
+        // pas grave si vous comprenez pas 20/20 direct
+    }
     | '[' '[' tkey ']' ']' ENDLINE start {
+        //toto
+         $$ = $3.racine;
+         $3.noeud->ajouterdanstab($3.key,$7);
 
     }
     | END {
-        YYACCEPT;
+        $$ = std::make_shared<Objet>();
     }
-    ;
+
 
 
 
 tkey :
     key '.' tkey {
-        //std::shared_ptr<Valeur> p = std::make_shared<Objet>();
-        //driver.getRacine()->ajouterValeur($1,p);
+        $$.noeud = $3.noeud;
+        $$.key = $3.key;
+        $$.racine = std::make_shared<Objet>();
+        $$.racine->ajouterValeur($1,$3.racine);
     }
     | key {
-        //$$ = std::sharedp
+        std::shared_ptr<Objet> o = std::make_shared<Objet>();
+        o->tojson();
+        $$ = {o,o,$1};
     }
 
 tableau :
-    '[' contenutableau ']'
-    | '[' ']'
+    '[' contenutableau ']' {
+        $$ = $2;
+    }
+    | '[' ']' {
+        $$ = Tableau();
+    }
     ;
 
-contenutableau : value ',' contenutableau | value
+contenutableau : value ',' contenutableau {
+    $$ = Tableau($3);
+    $$.ajouterValeur($1);
+}
+| value {
+    $$.ajouterValeur ($1);
 
-value : STRING | ENTIER | FLOTTANT | BOOLEEN | tableau | INF  | SINF | NAN
-key : STRING | ENTIER | BAREKEY | BOOLEEN | NAN | INF
+}
+
+value : STRING { $$ = std::make_shared<ChaineCaractere>($1); }
+        | ENTIER { $$ = std::make_shared<NombreEntier>($1); }
+        | FLOTTANT { $$ = std::make_shared<NombreFlottant>($1); }
+        | BOOLEEN  { $$ = std::make_shared<Booleen>($1); }
+        | tableau  { $$ = std::make_shared<Tableau>($1); }
+        | INF  { $$ = std::make_shared<Infinity>($1); }
+        | SINF { $$ = std::make_shared<Infinity>($1); }
+        | NAN { $$ = std::make_shared<Notanumber>($1); }
+        | SNAN { $$ = std::make_shared<Notanumber>($1); }
+key : STRING { $$ = $1; }
+     | ENTIER { $$ = std::to_string($1); }
+     | BAREKEY { $$ = $1; }
+     | BOOLEEN {
+        if($1) $$ = "true";
+        else $$ = "false";
+     }
+     | NAN { $$ = "nan"; }
+     | INF { $$ = "inf"; }
 
 
 %%

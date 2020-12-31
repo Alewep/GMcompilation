@@ -22,6 +22,8 @@ namespace common {
         Objet(Objet const& o);
         bool operator==(Valeur const& v) const override;
         void ajouterValeur(std::string key,std::shared_ptr<Valeur> v);
+        void unionObj(Objet const& o);
+        void ajouterdanstab(std::string key,std::shared_ptr<Valeur> v);
         std::shared_ptr<Valeur> clone () const override;
         std::string tojson() const override;
     };
@@ -81,11 +83,11 @@ namespace common {
 
     };
 
-    class Boolleen : public Valeur {
+    class Booleen : public Valeur {
     private:
         bool _b;
     public:
-        Boolleen (bool b);
+        Booleen (bool b);
         bool operator==(Valeur const& v) const override;
         std::shared_ptr<Valeur>clone () const override;
         std::string tojson() const override;

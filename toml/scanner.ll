@@ -35,7 +35,6 @@ bool barekey = false;
 \#.*$ {}
 
 ([\r\n])+ {
-    std::cout<<"endline"<<std::endl;
     return token::ENDLINE;
 }
 
@@ -67,10 +66,13 @@ false {
      yylval->build<valueinfinity>(valueinfinity::minf);
      return token::SINF;
 }
-
-[\+\-]?(nan) {
+nan {
+  yylval->build<Notanumber>();
+  return token::NAN;
+}
+[\+\-](nan) {
      yylval->build<Notanumber>();
-     return token::NAN;
+     return token::SNAN;
 }
 
 ([\+\-]?(([1-9](_?[0-9](_[0-9])?)*)|0))(\.((([0-9]*[1-9])|0)([Ee][\+\-]?[0-9]+)?)|[Ee][\+\-]?[0-9]+) {
@@ -99,7 +101,6 @@ false {
 }
 
 ([A-Za-z0-9_-]+) {
-     std::cout<<yytext;
      yylval->build<std::string>(yytext);
      return token::BAREKEY;
 }
@@ -112,7 +113,6 @@ false {
 
 ([\t ])+ {}
 .|\n {
-    std::cout<<yytext<<std::endl;
     return yytext[0];
 }
 %%
