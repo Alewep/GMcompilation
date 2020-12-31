@@ -21,9 +21,14 @@ namespace common {
         Objet() = default;
         Objet(Objet const& o);
         bool operator==(Valeur const& v) const override;
+        void ajouterValeurSansVerif(std::string key,std::shared_ptr<Valeur> v);
         void ajouterValeur(std::string key,std::shared_ptr<Valeur> v);
+        std::map<std::string,std::shared_ptr<Valeur>>::iterator getValeur(std::string key);
+        void supprimerValeur(std::map<std::string,std::shared_ptr<Valeur>>::iterator it );
         void unionObj(Objet const& o);
         void ajouterdanstab(std::string key,std::shared_ptr<Valeur> v);
+        bool empty (std::map<std::string,std::shared_ptr<Valeur>>::iterator it);
+        std::map<std::string,std::shared_ptr<Valeur>>::iterator  getempty();
         std::shared_ptr<Valeur> clone () const override;
         std::string tojson() const override;
     };

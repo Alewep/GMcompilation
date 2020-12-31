@@ -41,6 +41,19 @@ void Objet::ajouterValeur(std::string key,std::shared_ptr<Valeur> v)
     else return throw 0;
 }
 
+std::map<std::string,std::shared_ptr<Valeur>>::iterator Objet::getValeur(std::string key)
+{
+    return _valeurs.find(key);
+}
+
+void Objet::supprimerValeur(std::map<std::string,std::shared_ptr<Valeur>>::iterator it )
+{
+    if (it != _valeurs.end())
+    _valeurs.erase(it);
+}
+
+
+
 void Objet::unionObj(const Objet &o)
 {
     for (auto &e : o._valeurs) {
@@ -65,6 +78,17 @@ void Objet::ajouterdanstab(std::string key, std::shared_ptr<Valeur> v)
     }
 
 
+}
+
+bool Objet::empty(std::map<std::string,std::shared_ptr<Valeur>>::iterator it)
+{
+    if ( it == _valeurs.end()) return true;
+    else return false;
+}
+
+std::map<std::string,std::shared_ptr<Valeur>>::iterator Objet::getempty()
+{
+    return _valeurs.end();
 }
 
 std::shared_ptr<Valeur> Objet::clone() const
@@ -111,7 +135,7 @@ bool Tableau::operator==(const Valeur &v) const
 
 void Tableau::ajouterValeur(std::shared_ptr<Valeur> v)
 {
-    _valeurs.push_back(v);
+    _valeurs.push_front(v);
 }
 
 

@@ -23,7 +23,14 @@
         std::shared_ptr<Objet> racine;
         std::shared_ptr<Objet> noeud;
         std::string key;
+        std::string startkey;
     };
+    struct arbreObjet {
+         std::shared_ptr<Objet> courant;
+         std::map<std::string,std::shared_ptr<Valeur>>::iterator ajout;
+
+    };
+
 }
 
 %parse-param { toml::scanner &scanner }
@@ -48,7 +55,7 @@
 
 %type <std::shared_ptr<Valeur>> value
 %type <arbrekey>                tkey
-%type <std::shared_ptr<Objet>>  start
+%type <arbreObjet>  start
 %type <Tableau>                 tableau contenutableau
 %type <std::string>             key
 
@@ -56,35 +63,43 @@
 %%
 
 document:
-    ENDLINE start { driver.setRacine(new Objet(*($2.get()))); YYACCEPT; }
-    | start {driver.setRacine(new Objet(*($1.get()))); YYACCEPT;}
+    ENDLINE start {  driver.get_racine()->unionObj(*($2.courant.get())); YYACCEPT; }
+    | start { driver.get_racine()->unionObj(*($1.courant.get())); YYACCEPT;}
 
 
 start :
     tkey '=' value ENDLINE start {
-
-        $$ = $1.racine;
-        $1.racine->tojson();
+        $$.ajout = $5.ajout;
+        $$.courant = $1.racine;
         $1.noeud->ajouterValeur($1.key,$3);
-        $$->unionObj(*($5.get()));
+        $$.courant->unionObj(*($5.courant.get()));
     }
     | '[' tkey ']' ENDLINE start {
-        $$ = $2.racine;
-        std::shared_ptr<Objet> o = std::make_shared<Objet>();
-        $2.noeud->ajouterValeur($2.key,o);
-        o->unionObj(*($5.get()));
-        // pas grave si vous comprenez pas 20/20 direct
+        $$.courant = std::make_shared<Objet>();
+        $2.noeud->ajouterValeur($2.key,$5.courant);
+        driver.get_racine()->unionObj(*($2.racine.get()));
+        $$.ajout = driver.get_racine()->getValeur($2.startkey);
+
     }
     | '[' '[' tkey ']' ']' ENDLINE start {
-        //toto
-         $$ = $3.racine;
-         $3.noeud->ajouterdanstab($3.key,$7);
+         $$.courant = std::make_shared<Objet>();
+        if(driver.get_racine()->empty($7.ajout)) {
+             $3.noeud->ajouterdanstab($3.key,$7.courant);
+         }
+        else {
+            std::shared_ptr<Objet> o = std::make_shared<Objet>();
+            o->ajouterValeur($7.ajout->first,$7.ajout->second);
+            $3.noeud->ajouterdanstab($3.key,o);
+            driver.get_racine()->supprimerValeur($7.ajout);
+        }
+
+        driver.get_racine()->unionObj(*($3.racine.get()));
 
     }
     | END {
-        $$ = std::make_shared<Objet>();
+        $$.courant = std::make_shared<Objet>();
+        $$.ajout = driver.get_racine()->getempty();
     }
-
 
 
 
@@ -92,13 +107,14 @@ tkey :
     key '.' tkey {
         $$.noeud = $3.noeud;
         $$.key = $3.key;
+        $$.startkey = $1;
+
         $$.racine = std::make_shared<Objet>();
         $$.racine->ajouterValeur($1,$3.racine);
     }
     | key {
         std::shared_ptr<Objet> o = std::make_shared<Objet>();
-        o->tojson();
-        $$ = {o,o,$1};
+        $$ = {o,o,$1,$1};
     }
 
 tableau :

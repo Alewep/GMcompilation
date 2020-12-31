@@ -5,7 +5,7 @@
 
 common::Objet* parseTOML(const std::string &filename) {
     auto input = std::ifstream(filename);
-    common::driver driver;
+    common::driver driver(new Objet());
     toml::scanner scanner(input, std::cout);
     toml::parser parser(scanner, driver);
 

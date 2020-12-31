@@ -5,9 +5,11 @@ namespace common {
 
     class driver {
     private:
-        Objet* racine;
+        Objet* _racine;
     public:
         driver();
+        //~driver() {delete _racine;}
+        driver(Objet* racine);
         Objet* get_racine();
         void setRacine(Objet *value);
     };
