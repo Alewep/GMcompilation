@@ -1,2 +1,3 @@
 # GMcompilation
-Projet, Licence 3 Informatique Module : théorie des langages et compilation; Comparaison de fichiers JSON et TOML
+Projet de Licence 3 Informatique Module : Théorie des langages et compilation.
+Comparaison de fichiers JSON et TOM.
